@@ -53,6 +53,7 @@ do
   $WGET_WARC -U "${USER_AGENT}" -e "robots=off" \
     -nv -o "${prefixdir}/wget-${prefix}-${tries}.log" \
     -O /dev/null \
+    --max-redirect=0 \
     --warc-file="${prefixdir}/anyhub.net-${prefix}_-${date}-${tries}" \
     --warc-max-size=inf \
     --warc-header="operator: Archive Team" \
