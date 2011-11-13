@@ -43,7 +43,7 @@ do
   then
     next_tries=$(( tries + 1 ))
     grep -B 1 'ERROR 50' "data/urls-${prefix}-${tries}.txt" \
-      | grep "http://" \
+      | grep -oE "http://[^:]+" \
       > "data/urls-${prefix}-${next_tries}.txt"
     if [ -s "data/urls-${prefix}-${next_tries}.txt" ]
     then
