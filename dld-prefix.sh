@@ -38,7 +38,7 @@ mkdir -p "${prefixdir}"
 touch "${prefixdir}/.incomplete"
 
 
-for c in {A..Z} {a..z} {0..9}
+for c in {A..Z} {a..z} {0..9} - _
 do
   echo "http://f.anyhub.net/${prefix}${c}"
 done > "${prefixdir}/urls-${prefix}-1.txt"

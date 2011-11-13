@@ -17,7 +17,7 @@ then
   exit 4
 fi
 
-if [ -z $prefix ] || [[ ! $prefix =~ ^[0-9A-Za-z]+$ ]]
+if [ -z $prefix ] || [[ ! $prefix =~ .+ ]]
 then
   echo "Usage:  $0 {yournick} {prefix}"
   echo "Provide a prefix."
