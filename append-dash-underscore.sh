@@ -28,7 +28,7 @@ touch "${prefixdir}/.incomplete"
 for c in - _
 do
   echo "http://f.anyhub.net/${prefix}${c}"
-done > "${prefixdir}/urls-${prefix}-dash.txt"
+done > "${prefixdir}/urls-${prefix}-d1.txt"
 
 date=$( date +'%Y%m%d' )
 

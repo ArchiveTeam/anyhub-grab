@@ -45,7 +45,7 @@ do
   # FIX 1: check for download of - and _
   if ! grep -q "${prefix}_" "${d}/wget"*".log"
   then
-    if [ ! -f "${d}/urls-${prefix}-dash.txt" ]
+    if [ ! -f "${d}/urls-${prefix}-d1.txt" ]
     then
       echo "${prefix} is missing - and _, needs to be fixed."
       touch "${d}/.incomplete"
