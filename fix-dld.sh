@@ -45,11 +45,14 @@ do
   # FIX 1: check for download of - and _
   if ! grep -q "${prefix}_" "${d}/wget"*".log"
   then
-    echo "${prefix} is missing - and _, needs to be fixed."
-    touch "${d}/.incomplete"
-    if ./append-dash-underscore.sh "${prefix}"
+    if [ ! -f "${d}/urls-${prefix}-dash.txt" ]
     then
-      need_fix=1
+      echo "${prefix} is missing - and _, needs to be fixed."
+      touch "${d}/.incomplete"
+      if ./append-dash-underscore.sh "${prefix}"
+      then
+        need_fix=1
+      fi
     fi
   fi
 
