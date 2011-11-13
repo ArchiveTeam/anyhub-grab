@@ -14,14 +14,34 @@ then
   exit 3
 fi
 
+VERSION="20111113.01"
+
 USER_AGENT="Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27"
 
 prefix=$1
 
+prefixdir="data/$1"
+
+if [[ -f "${prefixdir}/.incomplete" ]]
+then
+  echo "  Deleting incomplete result for ${prefix}"
+  rm -rf "${prefixdir}"
+fi
+
+if [[ -d "${prefixdir}" ]]
+then
+  echo "  Already downloaded ${prefix}"
+  exit 0
+fi
+
+mkdir -p "${prefixdir}"
+touch "${prefixdir}/.incomplete"
+
+
 for c in {A..Z} {a..z} {0..9}
 do
   echo "http://f.anyhub.net/${prefix}${c}"
-done > "data/urls-${prefix}-1.txt"
+done > "${prefixdir}/urls-${prefix}-1.txt"
 
 date=$( date +'%Y%m%d' )
 
@@ -29,23 +49,23 @@ result=8
 tries=1
 while [ $result -eq 8 ]
 do
-  echo "Prefix: ${prefix}  try: ${tries}"
+  echo "  Downloading prefix: ${prefix}  try: ${tries}"
   $WGET_WARC -U "${USER_AGENT}" -e "robots=off" \
-    -nv -o "data/wget-${prefix}-${tries}.log" \
+    -nv -o "${prefixdir}/wget-${prefix}-${tries}.log" \
     -O /dev/null \
-    --warc-file="data/anyhub.net-${prefix}_-${date}-${tries}" \
+    --warc-file="${prefixdir}/anyhub.net-${prefix}_-${date}-${tries}" \
     --warc-max-size=inf \
     --warc-header="operator: Archive Team" \
     --warc-header="anyhub-range-prefix: ${prefix}" \
-    --input-file="data/urls-${prefix}-${tries}.txt"
+    --input-file="${prefixdir}/urls-${prefix}-${tries}.txt"
   result=$?
   if [ $result -eq 8 ]
   then
     next_tries=$(( tries + 1 ))
-    grep -B 1 'ERROR 50' "data/urls-${prefix}-${tries}.txt" \
+    grep -B 1 'ERROR 50' "${prefixdir}/urls-${prefix}-${tries}.txt" \
       | grep -oE "http://[^:]+" \
-      > "data/urls-${prefix}-${next_tries}.txt"
-    if [ -s "data/urls-${prefix}-${next_tries}.txt" ]
+      > "${prefixdir}/urls-${prefix}-${next_tries}.txt"
+    if [ -s "${prefixdir}/urls-${prefix}-${next_tries}.txt" ]
     then
       tries=$next_tries
       result=9
@@ -54,4 +74,11 @@ do
     fi
   fi
 done
+
+echo -n "  Prefix ${prefix} done: "
+./du-helper.sh -hs "$prefixdir/"
+
+rm "${prefixdir}/.incomplete"
+
+exit 0
 
