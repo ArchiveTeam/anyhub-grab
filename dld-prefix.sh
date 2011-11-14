@@ -14,7 +14,7 @@ then
   exit 3
 fi
 
-VERSION="20111113.02"
+VERSION="20111114.01"
 
 USER_AGENT="Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27"
 
@@ -73,6 +73,14 @@ do
     else
       result=0
     fi
+  elif [ $result -ne 0 ]
+  then
+    echo "  wget returned an error (ERROR ${result})."
+    echo "  Check the wget log ${prefixdir}/wget-${prefix}-${tries}.log to see what it was."
+    echo
+    tail -n 10 "${prefixdir}/wget-${prefix}-${tries}.log"
+    echo
+    exit 4
   fi
 done
 
