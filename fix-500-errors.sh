@@ -1,7 +1,7 @@
 #!/bin/bash
-# Download a range of Anyhub files.
+# Download missing files from a range of Anyhub files.
 #
-# Usage:  ./dld-range.sh {PREFIX}
+# Usage:  ./fix-500-errors.sh {PREFIX}
 # where PREFIX is the three-letter prefix for the range.
 #
 
@@ -22,26 +22,12 @@ prefix=$1
 
 prefixdir="data/$1"
 
-if [[ -f "${prefixdir}/.incomplete" ]]
-then
-  echo "  Deleting incomplete result for ${prefix}"
-  rm -rf "${prefixdir}"
-fi
-
-if [[ -d "${prefixdir}" ]]
-then
-  echo "  Already downloaded ${prefix}"
-  exit 0
-fi
-
 mkdir -p "${prefixdir}"
 touch "${prefixdir}/.incomplete"
 
-
-for c in {A..Z} {a..z} {0..9} - _
-do
-  echo "http://f.anyhub.net/${prefix}${c}"
-done > "${prefixdir}/urls-${prefix}-1.txt"
+grep -B 1 'ERROR 50' "${prefixdir}/wget"*".log" \
+  | grep -oE "http://[^:]+" \
+  > "${prefixdir}/urls-${prefix}-err500-1.txt"
 
 date=$( date +'%Y%m%d' )
 
@@ -51,22 +37,22 @@ while [ $result -eq 8 ]
 do
   echo "  Downloading prefix: ${prefix}  try: ${tries}"
   $WGET_WARC -U "${USER_AGENT}" -e "robots=off" \
-    -nv -o "${prefixdir}/wget-${prefix}-${tries}.log" \
+    -nv -o "${prefixdir}/wget-${prefix}-err500-${tries}.log" \
     -O /dev/null \
     --max-redirect=0 \
-    --warc-file="${prefixdir}/anyhub.net-${prefix}_-${date}-${tries}" \
+    --warc-file="${prefixdir}/anyhub.net-${prefix}_-${date}-err500-${tries}" \
     --warc-max-size=inf \
     --warc-header="operator: Archive Team" \
     --warc-header="anyhub-range-prefix: ${prefix}" \
-    --input-file="${prefixdir}/urls-${prefix}-${tries}.txt"
+    --input-file="${prefixdir}/urls-${prefix}-err500-${tries}.txt"
   result=$?
   if [ $result -eq 8 ]
   then
     next_tries=$(( tries + 1 ))
-    grep -B 1 'ERROR 50' "${prefixdir}/wget-${prefix}-${tries}.log" \
+    grep -B 1 'ERROR 50' "${prefixdir}/wget-${prefix}-err500-${tries}.log" \
       | grep -oE "http://[^:]+" \
-      > "${prefixdir}/urls-${prefix}-${next_tries}.txt"
-    if [ -s "${prefixdir}/urls-${prefix}-${next_tries}.txt" ]
+      > "${prefixdir}/urls-${prefix}-err500-${next_tries}.txt"
+    if [ -s "${prefixdir}/urls-${prefix}-err500-${next_tries}.txt" ]
     then
       tries=$next_tries
       result=9
@@ -76,9 +62,9 @@ do
   elif [ $result -ne 0 ]
   then
     echo "  wget returned an error (ERROR ${result})."
-    echo "  Check the wget log ${prefixdir}/wget-${prefix}-${tries}.log to see what it was."
+    echo "  Check the wget log ${prefixdir}/wget-${prefix}-err500-${tries}.log to see what it was."
     echo
-    tail -n 10 "${prefixdir}/wget-${prefix}-${tries}.log"
+    tail -n 10 "${prefixdir}/wget-${prefix}-err500-${tries}.log"
     echo
     exit 4
   fi

@@ -7,6 +7,8 @@
 #
 #  * Add - and _ to downloads that don't have it.
 #
+#  * Redo 50x errors.
+#
 # Note: this script will NOT fix any user that's still being
 # downloaded, that is, anything that has an .incomplete file.
 # This means that you can run this script while a normal
@@ -43,13 +45,27 @@ do
   fi
 
   # FIX 1: check for download of - and _
-  if ! grep -q "${prefix}_" "${d}/wget"*".log"
+  if [ ! -f "${d}/urls-${prefix}-d1.txt" ]
   then
-    if [ ! -f "${d}/urls-${prefix}-d1.txt" ]
+    if ! grep -q "${prefix}_" "${d}/urls-${prefix}-1.txt"
     then
       echo "${prefix} is missing - and _, needs to be fixed."
       touch "${d}/.incomplete"
       if ./append-dash-underscore.sh "${prefix}"
+      then
+        need_fix=1
+      fi
+    fi
+  fi
+
+  # FIX 2: check for forgotten 50x errors
+  if [ ! -f "${d}/urls-${prefix}-err500-1.txt" ] && [ ! -f "${d}/urls-${prefix}-2.log" ]
+  then
+    if grep -q "ERROR 50" "${d}/wget"*".log"
+    then
+      echo "${prefix} has HTTP 50x errors, needs to be fixed."
+      touch "${d}/.incomplete"
+      if ./fix-500-errors.sh "${prefix}"
       then
         need_fix=1
       fi
