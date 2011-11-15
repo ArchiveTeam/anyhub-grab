@@ -14,7 +14,7 @@ then
   exit 3
 fi
 
-VERSION="20111115.01"
+VERSION="20111115.02"
 
 USER_AGENT="Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27"
 
@@ -69,7 +69,7 @@ do
     if [ -s "${prefixdir}/urls-${prefix}-${next_tries}.txt" ]
     then
       tries=$next_tries
-      result=9
+      result=8
     else
       result=0
     fi

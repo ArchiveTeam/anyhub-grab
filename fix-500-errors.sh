@@ -55,7 +55,7 @@ do
     if [ -s "${prefixdir}/urls-${prefix}-err500-${next_tries}.txt" ]
     then
       tries=$next_tries
-      result=9
+      result=8
     else
       result=0
     fi
