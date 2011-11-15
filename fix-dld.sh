@@ -59,7 +59,7 @@ do
   fi
 
   # FIX 2: check for forgotten 50x errors
-  if [ ! -f "${d}/urls-${prefix}-err500-1.txt" ] && [ ! -f "${d}/urls-${prefix}-2.log" ]
+  if [ ! -f "${d}/urls-${prefix}-err500-1.txt" ] && [ ! -f "${d}/wget-${prefix}-2.log" ]
   then
     if grep -q "ERROR 50" "${d}/wget"*".log"
     then
@@ -69,6 +69,17 @@ do
       then
         need_fix=1
       fi
+    fi
+  fi
+
+  # FIX 3: check for double-forgotten 50x errors
+  if [ -s "${d}/urls-${prefix}-err500-2.txt" ] && [ ! -f "${d}/wget-${prefix}-err500-2.log" ]
+  then
+    echo "${prefix} has HTTP 50x errors, needs to be fixed once more."
+    touch "${d}/.incomplete"
+    if ./fix-500-errors-second.sh "${prefix}"
+    then
+      need_fix=1
     fi
   fi
 
